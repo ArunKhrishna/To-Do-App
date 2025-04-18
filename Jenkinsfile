@@ -2,8 +2,8 @@ pipeline {
   agent any
 
   environment {
-    KUBECONFIG = 'C:\\Users\\ARUN\\.kube\\config'
-    MINIKUBE_HOME = 'C:\\Users\\ARUN\\.minikube'
+    KUBECONFIG = 'C:\\minikube-data\\.kube\\config'
+    MINIKUBE_HOME = 'C:\\minikube-data\\.minikube'
   }
 
   stages {
@@ -48,7 +48,11 @@ pipeline {
   }
 
   post {
-    success { echo '✅ Deployment successful!' }
-    failure { echo '❌ Deployment failed.' }
+    success {
+      echo '✅ Deployment successful!'
+    }
+    failure {
+      echo '❌ Deployment failed.'
+    }
   }
 }
