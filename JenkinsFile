@@ -52,5 +52,3 @@ pipeline {
     failure { echo '❌ Deployment failed.' }
   }
 }
-
-//renamed
