@@ -15,13 +15,7 @@ spec:
       containers:
         - name: todoapp
           image: todoapp:v1
+          # Use the locally‑built image if present; don’t try to pull from DockerHub
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
-
-~
-~
-k8s/deployment.yaml[+] [unix] (05:29 01/01/1970)                      20,0-1 All
-"k8s/deployment.yaml"
-"k8s/deployment.yaml" E212: Can't open file for writing
-Press ENTER or type command to continue
-

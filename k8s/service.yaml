@@ -7,7 +7,8 @@ spec:
   selector:
     app: todoapp
   ports:
-    - port: 8080
-      targetPort: 8080
-      nodePort: 30080
-
+    - name: http             # optional, but helps tools & dashboards
+      protocol: TCP          # defaults to TCP; explicit for clarity
+      port: 8080             # cluster‑internal port
+      targetPort: 8080       # port your pods listen on
+      nodePort: 30080        # external port on each node (30000–32767)
