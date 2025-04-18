@@ -1,0 +1,81 @@
+name: CI/CD with ZAP Scan and Netlify Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  ci-cd:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+
+    - name: Install Dependencies
+      working-directory: TodoApp
+      run: npm install
+
+    - name: Build Application
+      working-directory: TodoApp
+      run: npm run build
+
+    - name: Deploy to Netlify (Staging)
+      working-directory: TodoApp
+      run: |
+        npx netlify-cli deploy \
+          --site ${{ secrets.NETLIFY_SITE_ID }} \
+          --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
+          --dir=. \
+          --message="Preview Deploy" \
+          --json > ../deploy-info.json  # Save in root
+
+    - name: Extract Staging URL
+      working-directory: .
+      run: |
+        echo "ZAP_URL=$(jq -r '.deploy_url' deploy-info.json)" >> $GITHUB_ENV
+
+    - name: OWASP ZAP Scan on Staging
+      uses: zaproxy/action-full-scan@v0.8.0
+      with:
+        target: '${{ env.ZAP_URL }}'
+        fail_action: false  # Change to true if you want to block production deploy on findings
+        allow_issue_writing: false
+        artifact_name: zap-report
+      continue-on-error: true
+
+    - name: Show ZAP Report in Console (Markdown)
+      if: always()
+      run: |
+        if [ -f report_md.md ]; then
+          echo "🧪 ZAP Scan Markdown Report:"
+          cat report_md.md
+        else
+          echo "⚠️ ZAP report not found."
+        fi
+
+    - name: Upload ZAP Report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: zap-report-${{ github.run_id }}
+        path: |
+          report_html.html
+          report_md.md
+          report_json.json
+
+    - name: Deploy to Netlify (Production)
+      working-directory: TodoApp
+      if: success()  # Deploy only if everything before this passed
+      run: |
+        npx netlify-cli deploy \
+          --site ${{ secrets.NETLIFY_SITE_ID }} \
+          --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
+          --prod \
+          --dir=.
