@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todoapp-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todoapp
+  template:
+    metadata:
+      labels:
+        app: todoapp
+    spec:
+      containers:
+        - name: todoapp
+          image: todoapp:v1
+          ports:
+            - containerPort: 8080
+
+~
+~
+k8s/deployment.yaml[+] [unix] (05:29 01/01/1970)                      20,0-1 All
+"k8s/deployment.yaml"
+"k8s/deployment.yaml" E212: Can't open file for writing
+Press ENTER or type command to continue
+
