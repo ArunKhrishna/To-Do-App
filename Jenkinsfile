@@ -20,6 +20,12 @@ pipeline {
       }
     }
 
+    stage('Reset Minikube') {
+      steps {
+        bat 'minikube delete'
+      }
+    }
+
     stage('Start Minikube') {
       steps {
         bat 'minikube start --driver=docker --embed-certs'
